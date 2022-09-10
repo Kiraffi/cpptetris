@@ -52,7 +52,7 @@ void printString(const char *str)
 
 
 
-bool Window::initWindow(const char *str)
+bool MyWindow::initWindow(const char *str)
 {
     windowStr = str;
 
@@ -93,14 +93,14 @@ bool Window::initWindow(const char *str)
     return true;
 }
 
-void Window::deinitWindow()
+void MyWindow::deinitWindow()
 {
     if(hglrc)
     {
-        // make the rendering context not current  
+        // make the rendering context not current
         wglMakeCurrent(NULL, NULL);
 
-        // delete the rendering context  
+        // delete the rendering context
         wglDeleteContext(hglrc);
     }
     if(hwnd)
@@ -109,7 +109,7 @@ void Window::deinitWindow()
     }
 }
 
-bool Window::initOpengl()
+bool MyWindow::initOpengl()
 {
     HDC hdc = GetDC(hwnd);
 
@@ -132,10 +132,10 @@ bool Window::initOpengl()
 
 
 
-    // create a rendering context  
+    // create a rendering context
     hglrc = wglCreateContext(hdc);
     BOOL createSuccess = wglMakeCurrent(hdc, hglrc);
-    // make it the calling thread's current rendering context 
+    // make it the calling thread's current rendering context
     if(createSuccess)
     {
 
@@ -181,7 +181,7 @@ bool Window::initOpengl()
     return createSuccess != 0;
 }
 
-void Window::setVsync(bool vsync)
+void MyWindow::setVsync(bool vsync)
 {
     if(wglSwapIntervalEXT)
     {
@@ -190,7 +190,7 @@ void Window::setVsync(bool vsync)
 }
 
 
-bool Window::pollMessges()
+bool MyWindow::pollMessges()
 {
     MSG msg = {};
     while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -202,7 +202,7 @@ bool Window::pollMessges()
     return quit;
 }
 
-void Window::updateWindowSize()
+void MyWindow::updateWindowSize()
 {
     RECT windowRect = {};
     if(GetWindowRect(hwnd, &windowRect) == 0)
@@ -215,7 +215,7 @@ void Window::updateWindowSize()
     height = windowRect.bottom - windowRect.top;
 }
 
-void Window::swapBuffers()
+void MyWindow::swapBuffers()
 {
     HDC hdc = GetDC(hwnd);
     SwapBuffers(hdc);

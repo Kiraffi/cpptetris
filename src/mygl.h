@@ -42,7 +42,11 @@ struct OpenGLInfo
 #define NULL 0
 #endif
 
-#define API __stdcall
+#if WIN32
+    #define GLAPI __stdcall
+#else
+    #define GLAPI
+#endif
 
 #define GL_DEPTH_BUFFER_BIT 0x00000100
 #define GL_STENCIL_BUFFER_BIT 0x00000400
@@ -106,30 +110,30 @@ struct OpenGLInfo
 #define GL_EXTENSIONS 0x1F03
 #define GL_SHADING_LANGUAGE_VERSION_ARB 0x8B8C
 
-typedef void API glGenBuffersFunc(GLsizei n, GLuint *buffers);
-typedef void API glBindVertexArrayFunc(GLuint array);
-typedef void API glDeleteVertexArraysFunc(GLsizei n, const GLuint *arrays);
-typedef void API glGenVertexArraysFunc(GLsizei n, GLuint *arrays);
-typedef void API glBindBufferFunc(GLenum target, GLuint buffer);
-typedef void API glDeleteBuffersFunc(GLsizei n, const GLuint *buffers);
-typedef void API glBufferDataFunc(GLenum target, GLsizeiptr size, const void *data, GLenum usage);
-typedef void API glVertexAttribPointerFunc(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);
-typedef void API glEnableVertexAttribArrayFunc(GLuint index);
-typedef void API glLinkProgramFunc(GLuint program);
-typedef void API glShaderSourceFunc(GLuint shader, GLsizei count, const GLchar *const *string, const GLint *length);
-typedef void API glUseProgramFunc(GLuint program);
-typedef void API glCompileShaderFunc(GLuint shader);
-typedef GLuint API glCreateProgramFunc(void);
-typedef GLuint API glCreateShaderFunc(GLenum type);
-typedef void API glDeleteProgramFunc(GLuint program);
-typedef void API glDeleteShaderFunc(GLuint shader);
-typedef void API glDetachShaderFunc(GLuint program, GLuint shader);
-typedef void API glAttachShaderFunc(GLuint program, GLuint shader);
-typedef void API glGetProgramivFunc(GLuint program, GLenum pname, GLint *params);
-typedef void API glGetProgramInfoLogFunc(GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
-typedef void API glGetShaderivFunc(GLuint shader, GLenum pname, GLint *params);
-typedef void API glGetShaderInfoLogFunc(GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
-typedef void API glGetShaderSourceFunc(GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *source);
+typedef void GLAPI glGenBuffersFunc(GLsizei n, GLuint *buffers);
+typedef void GLAPI glBindVertexArrayFunc(GLuint array);
+typedef void GLAPI glDeleteVertexArraysFunc(GLsizei n, const GLuint *arrays);
+typedef void GLAPI glGenVertexArraysFunc(GLsizei n, GLuint *arrays);
+typedef void GLAPI glBindBufferFunc(GLenum target, GLuint buffer);
+typedef void GLAPI glDeleteBuffersFunc(GLsizei n, const GLuint *buffers);
+typedef void GLAPI glBufferDataFunc(GLenum target, GLsizeiptr size, const void *data, GLenum usage);
+typedef void GLAPI glVertexAttribPointerFunc(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);
+typedef void GLAPI glEnableVertexAttribArrayFunc(GLuint index);
+typedef void GLAPI glLinkProgramFunc(GLuint program);
+typedef void GLAPI glShaderSourceFunc(GLuint shader, GLsizei count, const GLchar *const *string, const GLint *length);
+typedef void GLAPI glUseProgramFunc(GLuint program);
+typedef void GLAPI glCompileShaderFunc(GLuint shader);
+typedef GLuint GLAPI glCreateProgramFunc(void);
+typedef GLuint GLAPI glCreateShaderFunc(GLenum type);
+typedef void GLAPI glDeleteProgramFunc(GLuint program);
+typedef void GLAPI glDeleteShaderFunc(GLuint shader);
+typedef void GLAPI glDetachShaderFunc(GLuint program, GLuint shader);
+typedef void GLAPI glAttachShaderFunc(GLuint program, GLuint shader);
+typedef void GLAPI glGetProgramivFunc(GLuint program, GLenum pname, GLint *params);
+typedef void GLAPI glGetProgramInfoLogFunc(GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
+typedef void GLAPI glGetShaderivFunc(GLuint shader, GLenum pname, GLint *params);
+typedef void GLAPI glGetShaderInfoLogFunc(GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
+typedef void GLAPI glGetShaderSourceFunc(GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *source);
 
 struct GL
 {

@@ -1,7 +1,7 @@
 
 #pragma once
 
-class Window
+class MyWindow
 {
 public:
     bool initWindow(const char *str);

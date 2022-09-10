@@ -8,9 +8,11 @@ include(${CMAKE_HOME_DIRECTORY}/cmake/my_cmake.cmake)
 
 if (WIN32)
 	set(MAIN_CPP "winmain.cpp")
+    set(IncludeX11)
 endif(WIN32)
 if (UNIX)
-	set(MAIN_CPP "linmain.cpp")
+	set(MAIN_CPP "linuxmain.cpp")
+    set(IncludeX11 "-lX11")
 endif(UNIX)
 
 # Add source to this project's executable.
@@ -19,5 +21,6 @@ add_executable (cpptetris WIN32 ${MAIN_CPP} "mygl.cpp" "mygl.h" "helpers.h" "myg
 target_link_libraries(cpptetris PRIVATE
     ${OPENGL_LIBRARIES}
 	OpenGL::GL
+    ${IncludeX11}
 	#MyLibraries
 )

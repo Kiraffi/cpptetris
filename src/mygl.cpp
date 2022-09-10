@@ -3,7 +3,6 @@
 
 #include "helpers.h"
 
-
 OpenGLInfo getOpenGLInfo(bool isModernContext)
 {
     OpenGLInfo info = {};
@@ -69,7 +68,7 @@ static unsigned int compileShader(GL &gl, int shaderType, const char *shaderSour
             default:
             break;
         }
-        
+
         return 0;
     }
     return shader;
@@ -107,7 +106,7 @@ bool loadFuncs(GL &gl, const char* extensions)
     gl.glGetShaderInfoLog = (glGetShaderInfoLogFunc *)getProcAddress("glGetShaderInfoLog");
     gl.glGetShaderSource = (glGetShaderSourceFunc *)getProcAddress("glGetShaderSource");
 
-    return 
+    return
         gl.glGenBuffers &&
         gl.glBindVertexArray &&
         gl.glDeleteVertexArrays &&
@@ -121,7 +120,7 @@ bool loadFuncs(GL &gl, const char* extensions)
         gl.glLinkProgram &&
         gl.glShaderSource &&
         gl.glUseProgram &&
-        
+
         gl.glCompileShader &&
         gl.glCreateProgram &&
         gl.glCreateShader &&
@@ -133,7 +132,7 @@ bool loadFuncs(GL &gl, const char* extensions)
         gl.glGetProgramInfoLog &&
         gl.glGetShaderiv &&
         gl.glGetShaderInfoLog &&
-        gl.glGetShaderSource 
+        gl.glGetShaderSource
 
         ;
 

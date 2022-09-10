@@ -5,7 +5,7 @@
 #include "window.h"
 
 
-//#include <chrono>
+#include <chrono>
 
 
 
@@ -71,8 +71,9 @@ void renderTriangle(GL &gl)
     glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
-void runGameLoop(Window &window, GL &gl)
+void runGameLoop(MyWindow &window, GL &gl)
 {
+    window.setVsync(true);
     shaderProgram = createShaders(gl, vertexShaderSource, fragmentShaderSource);
     if(shaderProgram == 0)
     {
@@ -82,7 +83,7 @@ void runGameLoop(Window &window, GL &gl)
 
     window.running = true;
 
-    //auto prevTime = std::chrono::high_resolution_clock::now();
+    auto prevTime = std::chrono::high_resolution_clock::now();
     while(window.running)
     {
         window.pollMessges();
@@ -93,16 +94,16 @@ void runGameLoop(Window &window, GL &gl)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         renderTriangle(gl);
         window.swapBuffers();
-        //auto newTime = std::chrono::high_resolution_clock::now();
+        auto newTime = std::chrono::high_resolution_clock::now();
 
-        //print("Nanos: %ins\n", int(std::chrono::duration_cast<std::chrono::nanoseconds>(newTime - prevTime).count()));
-        //prevTime = newTime;
+        print("Nanos: %ins\n", int(std::chrono::duration_cast<std::chrono::nanoseconds>(newTime - prevTime).count()));
+        prevTime = newTime;
     }
 }
 
 void runGameMain()
 {
-    Window window = {};
+    MyWindow window = {};
 
     if(!window.initWindow("Cpp Tetris"))
     {
@@ -122,7 +123,7 @@ void runGameMain()
         return;
     }
 
-   
+
     print("Vendor: %s\n", info.vendor);
 
 
