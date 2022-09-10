@@ -16,3 +16,5 @@ void printString(const char *);
     printf(LOG_STRING, ## __VA_ARGS__); \
 } while(0)
 #endif
+
+void *getProcAddress(const char *funcName);

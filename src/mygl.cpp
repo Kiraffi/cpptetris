@@ -3,195 +3,179 @@
 
 #include "helpers.h"
 
-//#include <gl/GL.h>
-unsigned int VBO = 0;
-unsigned int VAO = 0;
-unsigned int shaderProgram = 0;
 
-const char *vertexShaderSource = R"(
-    #version 330 core
-    layout (location = 0) in vec3 aPos;
-    void main()
-    {
-        gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-    };
-)";
-
-const char *fragmentShaderSource = R"(
-    #version 330 core
-    out vec4 FragColor;
-    void main()
-    {
-        FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
-    };
-)";
-
-
-
-bool loadFuncs(const char *funcNames)
+OpenGLInfo getOpenGLInfo(bool isModernContext)
 {
-    glGenBuffers = (glGenBuffersFunc *)getProcAddress("glGenBuffers");
-    glBindVertexArray = (glBindVertexArrayFunc *)getProcAddress("glBindVertexArray");
-    glDeleteVertexArrays = (glDeleteVertexArraysFunc *)getProcAddress("glDeleteVertexArrays");
-    glGenVertexArrays = (glGenVertexArraysFunc *)getProcAddress("glGenVertexArrays");
-    glBindBuffer = (glBindBufferFunc *)getProcAddress("glBindBuffer");
-    glDeleteBuffers = (glDeleteBuffersFunc *)getProcAddress("glDeleteBuffers");
+    OpenGLInfo info = {};
+    info.vendor = (char *)glGetString(GL_VENDOR);
+    info.renderer = (char *)glGetString(GL_RENDERER);
+    info.version = (char *)glGetString(GL_VERSION);
+    if(isModernContext)
+    {
+        info.shadingLanguageVersion = (char *)glGetString(GL_SHADING_LANGUAGE_VERSION_ARB);
+    }
+    info.extensions = (char *)glGetString(GL_EXTENSIONS);
+    /*
+    char *cStart = info.extensions;
+    char *c = cStart;
+    while(c && cStart)
+    {
+        if(*c < 32 || *c >= 128)
+            break;
 
+        if(isspace(*c))
+        {
+            char str[LOG_LEN] = {};
+            size_t strLen = intptr_t(c) - intptr_t(cStart);
+            if(strLen < 2)
+            {
+                break;
+            }
+            strLen = strLen < LOG_LEN - 1 ? strLen : LOG_LEN - 1;
+            memcpy(str, cStart, strLen);
+            print("Extension: %s\n", str);
+            cStart = c + 1;
+        }
 
-    glBufferData = (glBufferDataFunc *)getProcAddress("glBufferData");
-    glVertexAttribPointer = (glVertexAttribPointerFunc *)getProcAddress("glVertexAttribPointer");
-    glEnableVertexAttribArray = (glEnableVertexAttribArrayFunc *)getProcAddress("glEnableVertexAttribArray");
-
-
-
-    glDrawArrays = (glDrawArraysFunc *)getProcAddress("glDrawArrays");
-
-
-
-    glLinkProgram = (glLinkProgramFunc *)getProcAddress("glLinkProgram");
-    glShaderSource = (glShaderSourceFunc *)getProcAddress("glShaderSource");
-    glUseProgram = (glUseProgramFunc *)getProcAddress("glUseProgram");
-
-    glCompileShader = (glCompileShaderFunc *)getProcAddress("glCompileShader");
-    glCreateProgram = (glCreateProgramFunc *)getProcAddress("glCreateProgram");
-    glCreateShader = (glCreateShaderFunc *)getProcAddress("glCreateShader");
-    glDeleteProgram = (glDeleteProgramFunc *)getProcAddress("glDeleteProgram");
-    glDeleteShader = (glDeleteShaderFunc *)getProcAddress("glDeleteShader");
-    glDetachShader = (glDetachShaderFunc *)getProcAddress("glDetachShader");
-    glAttachShader = (glAttachShaderFunc *)getProcAddress("glAttachShader");
-    glGetProgramiv = (glGetProgramivFunc *)getProcAddress("glGetProgramiv");
-    glGetProgramInfoLog = (glGetProgramInfoLogFunc *)getProcAddress("glGetProgramInfoLog");
-    glGetShaderiv = (glGetShaderivFunc *)getProcAddress("glGetShaderiv");
-    glGetShaderInfoLog = (glGetShaderInfoLogFunc *)getProcAddress("glGetShaderInfoLog");
-    glGetShaderSource = (glGetShaderSourceFunc *)getProcAddress("glGetShaderSource");
-
-
-
-
-
-
-    return glGenBuffers &&
-        glBindVertexArray &&
-        glDeleteVertexArrays &&
-        glGenVertexArrays &&
-        glBindBuffer &&
-        glDeleteBuffers &&
-        glBufferData &&
-        glVertexAttribPointer &&
-        glEnableVertexAttribArray &&
-
-        glDrawArrays &&
-
-        glLinkProgram &&
-        glShaderSource &&
-        glUseProgram &&
-
-        glCompileShader &&
-        glCreateProgram &&
-        glCreateShader &&
-        glDeleteProgram &&
-        glDeleteShader &&
-        glDetachShader &&
-        glAttachShader &&
-        glGetProgramiv &&
-        glGetProgramInfoLog &&
-        glGetShaderiv &&
-        glGetShaderInfoLog &&
-        glGetShaderSource 
-
-        ;
+        ++c;
+    }
+    */
+    return info;
 }
 
 
-
-bool createShaders()
+static unsigned int compileShader(GL &gl, int shaderType, const char *shaderSourceText)
 {
-    // build and compile our shader program
-// ------------------------------------
-// vertex shader
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-    glCompileShader(vertexShader);
-    // check for shader compile errors
-    int success;
-    char infoLog[512] = {};
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    unsigned int shader = gl.glCreateShader(shaderType);
+    gl.glShaderSource(shader, 1, &shaderSourceText, nullptr);
+    gl.glCompileShader(shader);
+
+    int success = 0;
+    gl.glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if(!success)
     {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        print( "Vertex shader compilation failed\n%s\n", infoLog);
-        return false;
+        char infoLog[512] = {};
+        gl.glGetShaderInfoLog(shader, 512, NULL, infoLog);
+        switch(shaderType)
+        {
+            case GL_VERTEX_SHADER:
+            print("Vertex shader compilation failed\n%s\n", infoLog);
+            break;
+
+            case GL_FRAGMENT_SHADER:
+            print("Fragment shader compilation failed\n%s\n", infoLog);
+            break;
+
+            default:
+            break;
+        }
+        
+        return 0;
     }
-    // fragment shader
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-    // check for shader compile errors
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if(!success)
+    return shader;
+}
+
+
+bool loadFuncs(GL &gl, const char* extensions)
+{
+    gl.glGenBuffers = (glGenBuffersFunc *)getProcAddress("glGenBuffers");
+    gl.glBindVertexArray = (glBindVertexArrayFunc *)getProcAddress("glBindVertexArray");
+    gl.glDeleteVertexArrays = (glDeleteVertexArraysFunc *)getProcAddress("glDeleteVertexArrays");
+    gl.glGenVertexArrays = (glGenVertexArraysFunc *)getProcAddress("glGenVertexArrays");
+    gl.glBindBuffer = (glBindBufferFunc *)getProcAddress("glBindBuffer");
+    gl.glDeleteBuffers = (glDeleteBuffersFunc *)getProcAddress("glDeleteBuffers");
+
+
+    gl.glBufferData = (glBufferDataFunc *)getProcAddress("glBufferData");
+    gl.glVertexAttribPointer = (glVertexAttribPointerFunc *)getProcAddress("glVertexAttribPointer");
+    gl.glEnableVertexAttribArray = (glEnableVertexAttribArrayFunc *)getProcAddress("glEnableVertexAttribArray");
+
+    gl.glLinkProgram = (glLinkProgramFunc *)getProcAddress("glLinkProgram");
+    gl.glShaderSource = (glShaderSourceFunc *)getProcAddress("glShaderSource");
+    gl.glUseProgram = (glUseProgramFunc *)getProcAddress("glUseProgram");
+
+    gl.glCompileShader = (glCompileShaderFunc *)getProcAddress("glCompileShader");
+    gl.glCreateProgram = (glCreateProgramFunc *)getProcAddress("glCreateProgram");
+    gl.glCreateShader = (glCreateShaderFunc *)getProcAddress("glCreateShader");
+    gl.glDeleteProgram = (glDeleteProgramFunc *)getProcAddress("glDeleteProgram");
+    gl.glDeleteShader = (glDeleteShaderFunc *)getProcAddress("glDeleteShader");
+    gl.glDetachShader = (glDetachShaderFunc *)getProcAddress("glDetachShader");
+    gl.glAttachShader = (glAttachShaderFunc *)getProcAddress("glAttachShader");
+    gl.glGetProgramiv = (glGetProgramivFunc *)getProcAddress("glGetProgramiv");
+    gl.glGetProgramInfoLog = (glGetProgramInfoLogFunc *)getProcAddress("glGetProgramInfoLog");
+    gl.glGetShaderiv = (glGetShaderivFunc *)getProcAddress("glGetShaderiv");
+    gl.glGetShaderInfoLog = (glGetShaderInfoLogFunc *)getProcAddress("glGetShaderInfoLog");
+    gl.glGetShaderSource = (glGetShaderSourceFunc *)getProcAddress("glGetShaderSource");
+
+    return 
+        gl.glGenBuffers &&
+        gl.glBindVertexArray &&
+        gl.glDeleteVertexArrays &&
+        gl.glGenVertexArrays &&
+        gl.glBindBuffer &&
+        gl.glDeleteBuffers &&
+        gl.glBufferData &&
+        gl.glVertexAttribPointer &&
+        gl.glEnableVertexAttribArray &&
+
+        gl.glLinkProgram &&
+        gl.glShaderSource &&
+        gl.glUseProgram &&
+        
+        gl.glCompileShader &&
+        gl.glCreateProgram &&
+        gl.glCreateShader &&
+        gl.glDeleteProgram &&
+        gl.glDeleteShader &&
+        gl.glDetachShader &&
+        gl.glAttachShader &&
+        gl.glGetProgramiv &&
+        gl.glGetProgramInfoLog &&
+        gl.glGetShaderiv &&
+        gl.glGetShaderInfoLog &&
+        gl.glGetShaderSource 
+
+        ;
+
+}
+
+
+unsigned int  createShaders(GL &gl, const char *vertexShaderSource, const char *fragmentShaderSource)
+{
+    unsigned int vertexShader = compileShader(gl, GL_VERTEX_SHADER, vertexShaderSource);
+    if(vertexShader == 0)
     {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        print("Fragment shader compilation failed\n%s\n", infoLog);
-        return false;
+        return 0;
+    }
+
+    unsigned int fragmentShader = compileShader(gl, GL_FRAGMENT_SHADER, fragmentShaderSource);
+    if(fragmentShader == 0)
+    {
+        gl.glDeleteShader(vertexShader);
+        return 0;
     }
 
     // link shaders
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
+    unsigned int shaderProgram = gl.glCreateProgram();
+    gl.glAttachShader(shaderProgram, vertexShader);
+    gl.glAttachShader(shaderProgram, fragmentShader);
+    gl.glLinkProgram(shaderProgram);
     // check for linking errors
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    
-    if(!success) 
+    int success = 0;
+    gl.glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+
+    if(!success)
     {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        char infoLog[512] = {};
+        gl.glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
         print("Shader linking failed\n%s\n", infoLog);
-        return false;
+
+        gl.glDeleteShader(vertexShader);
+        gl.glDeleteShader(fragmentShader);
+        return 0;
     }
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    gl.glDeleteShader(vertexShader);
+    gl.glDeleteShader(fragmentShader);
 
-    return true;
-}
-
-
-
-void createTriangle()
-{
-    static constexpr float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        0.0f, 0.5f, 0.0f
-    };
-
- 
-    glGenBuffers(1, &VBO);
-
-    glGenVertexArrays(1, &VAO);
-    
-    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(0);
-
-    // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-    // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-    glBindVertexArray(0);
-
-
-}
-
-void renderTriangle()
-{
-    glUseProgram(shaderProgram);
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    return shaderProgram;
 }
