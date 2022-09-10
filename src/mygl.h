@@ -2,14 +2,14 @@
 
 
 
-    struct OpenGLInfo
-    {
-        char *vendor;
-        char *renderer;
-        char *version;
-        char *shadingLanguageVersion;
-        char *extensions;
-    };
+struct OpenGLInfo
+{
+    char *vendor;
+    char *renderer;
+    char *version;
+    char *shadingLanguageVersion;
+    char *extensions;
+};
 
 
 #ifdef _WIN64

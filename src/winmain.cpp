@@ -1,6 +1,5 @@
-#include <stdio.h>
 
-#include <chrono>
+#include <stdio.h>
 #include <Windows.h>
 
 #include "gamemain.h"

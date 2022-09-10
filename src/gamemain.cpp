@@ -5,7 +5,7 @@
 #include "window.h"
 
 
-#include <chrono>
+//#include <chrono>
 
 
 
@@ -82,7 +82,7 @@ void runGameLoop(Window &window, GL &gl)
 
     window.running = true;
 
-    auto prevTime = std::chrono::high_resolution_clock::now();
+    //auto prevTime = std::chrono::high_resolution_clock::now();
     while(window.running)
     {
         window.pollMessges();
@@ -93,10 +93,10 @@ void runGameLoop(Window &window, GL &gl)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         renderTriangle(gl);
         window.swapBuffers();
-        auto newTime = std::chrono::high_resolution_clock::now();
+        //auto newTime = std::chrono::high_resolution_clock::now();
 
         //print("Nanos: %ins\n", int(std::chrono::duration_cast<std::chrono::nanoseconds>(newTime - prevTime).count()));
-        prevTime = newTime;
+        //prevTime = newTime;
     }
 }
 
